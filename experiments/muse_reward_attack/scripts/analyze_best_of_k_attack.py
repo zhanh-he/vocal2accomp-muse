@@ -7,6 +7,7 @@ import argparse
 import csv
 import json
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
@@ -32,6 +33,18 @@ def parse_args() -> argparse.Namespace:
 
 def _mean(rows, key: str) -> float:
     return float(np.mean([float(row["scores"][key]) for row in rows]))
+
+
+def _within_prompt_scale(rows, key: str) -> float:
+    """Estimate candidate variation after removing prompt-level score offsets."""
+    grouped = defaultdict(list)
+    for row in rows:
+        grouped[str(row["prompt_id"])].append(float(row["scores"][key]))
+    residuals = []
+    for values in grouped.values():
+        center = float(np.mean(values))
+        residuals.extend(value - center for value in values)
+    return max(float(np.std(residuals, ddof=1)), 1e-8)
 
 
 def main() -> None:
@@ -61,6 +74,7 @@ def main() -> None:
             continue
         baseline = select_best_of_k(rows, score_key, 1)
         baseline_means = {key: _mean(baseline, key) for key in available_scores}
+        proxy_scale = _within_prompt_scale(rows, score_key)
         arm_rows = []
         for k in k_values:
             selected = select_best_of_k(rows, score_key, k)
@@ -83,10 +97,23 @@ def main() -> None:
                 "bon_kl": best_of_k_kl(k),
                 "proxy_mean": means[score_key],
                 "proxy_gain": means[score_key] - baseline_means[score_key],
+                "proxy_within_prompt_sd": proxy_scale,
+                "proxy_gain_pool_sd": (
+                    means[score_key] - baseline_means[score_key]
+                ) / proxy_scale,
                 "failed": bool(failure_reasons),
                 "failure_reasons": ";".join(failure_reasons),
             }
             summary.update({f"mean_{key}": value for key, value in means.items()})
+            summary.update({
+                f"delta_{key}": value - baseline_means[key]
+                for key, value in means.items()
+            })
+            for control, boundary in thresholds.items():
+                delta = means[control] - baseline_means[control]
+                if boundary["direction"] == "lower":
+                    delta = -delta
+                summary[f"control_budget_{control}"] = delta / float(boundary["delta"])
             summaries.append(summary)
             arm_rows.append(summary)
             for row in selected:
