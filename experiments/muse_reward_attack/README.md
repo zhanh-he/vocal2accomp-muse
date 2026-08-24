@@ -140,6 +140,12 @@ generation, but confirmatory runs use the official 4096-token ceiling.
 statistics are fit on all unselected calibration candidates and are reused at
 every attack pressure point; they are never recomputed on the selected group.
 
+Because Muse co-generates both sides of the beat comparison,
+`build_fixed_vocal_counterfactual.py` additionally freezes candidate 0's vocal
+for each prompt and pairs it with every accompaniment candidate. This does not
+turn Muse into a conditional accompaniment model, but it separates a
+vocal-side/co-adaptation exploit from an accompaniment-ranking failure.
+
 ### A1 GRPO pilot
 
 - 32 train prompts and 16 held-out prompts;

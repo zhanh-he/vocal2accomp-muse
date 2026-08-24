@@ -122,8 +122,13 @@ def main() -> None:
         for row in rows:
             vocal = Path(row["vocal_path"]).expanduser().resolve()
             accompaniment = Path(row["accompaniment_path"]).expanduser().resolve()
-            mix = Path(row["audio_path"]).expanduser().resolve()
-            if not all(path.is_file() for path in (vocal, accompaniment, mix)):
+            mix = (
+                Path(row["audio_path"]).expanduser().resolve()
+                if row.get("audio_path")
+                else None
+            )
+            required = (vocal, accompaniment) if mix is None else (vocal, accompaniment, mix)
+            if not all(path.is_file() for path in required):
                 raise FileNotFoundError(f"missing audio for {row['candidate_id']}")
             scores: dict[str, float] = {}
             diagnostics: dict[str, Any] = {}
@@ -147,7 +152,8 @@ def main() -> None:
                 }
             coverage = accompaniment_coverage_path(accompaniment)
             scores["coverage"] = coverage
-            scores.update(_audio_guardrails(mix))
+            if mix is not None:
+                scores.update(_audio_guardrails(mix))
             scores["repetition_rate"] = _token_repetition_rate(row.get("audio_token_ids", []))
             if "beat_v5_madmom" in scores:
                 beat_v5 = scores["beat_v5_madmom"]
