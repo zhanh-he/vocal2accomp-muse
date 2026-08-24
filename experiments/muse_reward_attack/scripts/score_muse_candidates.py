@@ -16,7 +16,12 @@ import soundfile as sf
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
-from mir.reward_function import BeatV5Scorer, MadmomBeatV2Scorer, accompaniment_coverage_path
+from mir.reward_function import (
+    BeatV5Scorer,
+    MadmomBeatV2Scorer,
+    accompaniment_coverage_path,
+    combine_detector_results,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -132,6 +137,7 @@ def main() -> None:
                 raise FileNotFoundError(f"missing audio for {row['candidate_id']}")
             scores: dict[str, float] = {}
             diagnostics: dict[str, Any] = {}
+            v5_results = {}
             v2_result = v2.score_paths(vocal, accompaniment)
             scores["beat_v2"] = v2_result.score
             diagnostics["beat_v2"] = {
@@ -141,10 +147,25 @@ def main() -> None:
             }
             for backend, scorer in v5_scorers.items():
                 result = scorer.score_paths(vocal, accompaniment)
+                v5_results[backend] = result
                 key = f"beat_v5_{backend}"
                 scores[key] = result.score
                 scores[f"{key}_confidence"] = result.confidence
                 diagnostics[key] = {
+                    "confidence": result.confidence,
+                    "abstain": result.abstain,
+                    "reasons": result.reasons,
+                    "components": result.components,
+                    "diagnostics": result.diagnostics,
+                }
+            if {"madmom", "beat_this"} <= set(v5_results):
+                result = combine_detector_results(
+                    v5_results["madmom"],
+                    v5_results["beat_this"],
+                )
+                scores["beat_v5_detector_ensemble"] = result.score
+                scores["beat_v5_detector_ensemble_confidence"] = result.confidence
+                diagnostics["beat_v5_detector_ensemble"] = {
                     "confidence": result.confidence,
                     "abstain": result.abstain,
                     "reasons": result.reasons,
@@ -174,6 +195,10 @@ def main() -> None:
             if "beat_v5_madmom" in scores and "beat_v5_beat_this" in scores:
                 scores["beat_v5_detector_gap"] = abs(
                     scores["beat_v5_madmom"] - scores["beat_v5_beat_this"]
+                )
+            if "beat_v5_detector_ensemble" in scores:
+                scores["beat_v5_detector_ensemble_coverage_raw"] = 0.5 * (
+                    scores["beat_v5_detector_ensemble"] + coverage
                 )
             record = dict(row)
             record["scores"] = scores

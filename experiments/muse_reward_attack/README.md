@@ -28,6 +28,7 @@ and evaluation sample budget are reused across arms.
 - Beat v2;
 - Beat v5 with Madmom;
 - Beat v5 with Beat This;
+- confidence-weighted v5 Madmom/Beat This detector ensemble;
 - untuned `0.5 * Beat v2 + 0.5 * Beat v5` ensemble;
 - MuseCritic Mean5 and each of its five heads;
 - Beat v2/v5 + Coverage with raw equal weights;
@@ -36,6 +37,11 @@ and evaluation sample budget are reused across arms.
 
 Online group standardization is diagnostic only. It changes the measuring scale
 with every rollout group and can amplify a tiny wrong component difference.
+
+When both v5 backends have already been scored,
+`backfill_v5_detector_ensemble.py` reconstructs the existing confidence-weighted
+ensemble and its disagreement penalty from immutable diagnostics; it does not
+rerun audio feature extraction.
 
 ## Candidate and score contract
 

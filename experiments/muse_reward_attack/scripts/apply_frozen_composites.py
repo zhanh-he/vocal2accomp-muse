@@ -17,7 +17,12 @@ sys.path.insert(0, str(REPO_ROOT))
 from mir.composite_reward import ComponentStats
 
 
-COMPONENTS = ("beat_v2", "beat_v5_madmom", "coverage")
+COMPONENTS = (
+    "beat_v2",
+    "beat_v5_madmom",
+    "beat_v5_detector_ensemble",
+    "coverage",
+)
 COVERAGE_FLOOR_QUANTILE = 0.25
 
 
@@ -96,6 +101,20 @@ def main() -> None:
             )
             scores["beat_v5_coverage_floor_q25"] = _coverage_constrained_score(
                 scores["beat_v5_madmom"], scores["coverage"], coverage_floor
+            )
+            scores["beat_v5_detector_ensemble_coverage_frozen_std"] = 0.5 * (
+                _z(
+                    scores["beat_v5_detector_ensemble"],
+                    stats["beat_v5_detector_ensemble"],
+                )
+                + _z(scores["coverage"], stats["coverage"])
+            )
+            scores["beat_v5_detector_ensemble_coverage_floor_q25"] = (
+                _coverage_constrained_score(
+                    scores["beat_v5_detector_ensemble"],
+                    scores["coverage"],
+                    coverage_floor,
+                )
             )
             record["scores"] = scores
             record["frozen_stats_receipt"] = str(stats_output)

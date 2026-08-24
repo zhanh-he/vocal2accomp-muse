@@ -34,14 +34,18 @@
     "beat_v2": {"score_key": "beat_v2"},
     "beat_v5_madmom": {"score_key": "beat_v5_madmom"},
     "beat_v5_beat_this": {"score_key": "beat_v5_beat_this"},
+    "beat_v5_detector_ensemble": {"score_key": "beat_v5_detector_ensemble"},
     "beat_v2_v5_mean": {"score_key": "beat_v2_v5_mean"},
     "musecritic_mean5": {"score_key": "musecritic_mean5"},
     "beat_v2_coverage_raw": {"score_key": "beat_v2_coverage_raw"},
     "beat_v5_coverage_raw": {"score_key": "beat_v5_coverage_raw"},
+    "beat_v5_detector_ensemble_coverage_raw": {"score_key": "beat_v5_detector_ensemble_coverage_raw"},
     "beat_v2_coverage_frozen_std": {"score_key": "beat_v2_coverage_frozen_std"},
     "beat_v5_coverage_frozen_std": {"score_key": "beat_v5_coverage_frozen_std"},
+    "beat_v5_detector_ensemble_coverage_frozen_std": {"score_key": "beat_v5_detector_ensemble_coverage_frozen_std"},
     "beat_v2_coverage_floor_q25": {"score_key": "beat_v2_coverage_floor_q25"},
-    "beat_v5_coverage_floor_q25": {"score_key": "beat_v5_coverage_floor_q25"}
+    "beat_v5_coverage_floor_q25": {"score_key": "beat_v5_coverage_floor_q25"},
+    "beat_v5_detector_ensemble_coverage_floor_q25": {"score_key": "beat_v5_detector_ensemble_coverage_floor_q25"}
   },
   "automatic_noninferiority": {
     "coverage": {"direction": "higher", "delta": 0.02},
