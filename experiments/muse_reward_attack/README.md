@@ -123,6 +123,11 @@ PyTorch 2.8.0 CUDA 12.8 wheels first, pin `pip==23.3`, then install
 `requirements/mucodec-decode-cu128.txt`. This avoids changing the frozen MIR
 scoring environment.
 
+MuseCritic scoring requires both its frozen source checkout and checkpoint.
+`score_musecritic.py` reads the rubric from the official inference example so
+the prompt is not silently paraphrased. Smoke runs may shorten critique
+generation, but confirmatory runs use the official 4096-token ceiling.
+
 ### A0.2 Best-of-K pilot
 
 - 8 prompts, Kmax=16, prefix K in `{1,2,4,8,16}`;

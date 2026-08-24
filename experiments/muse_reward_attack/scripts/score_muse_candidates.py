@@ -6,11 +6,15 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import sys
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import soundfile as sf
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(REPO_ROOT))
 
 from mir.reward_function import BeatV5Scorer, MadmomBeatV2Scorer, accompaniment_coverage_path
 
