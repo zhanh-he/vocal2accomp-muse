@@ -40,49 +40,60 @@ def _row_indices(value: str, count: int) -> list[int]:
     return indices
 
 
-def _generate_trajectory(
+def _generate_trajectories(
     llm,
     tokenizer,
     source_messages: list[dict[str, str]],
     *,
+    seeds: list[int],
     max_turns: int,
     sampling_kwargs: dict[str, object],
-) -> tuple[list[dict[str, str]], list[int], list[int], list[str]]:
+) -> list[tuple[list[dict[str, str]], list[int], list[int], list[str]]]:
     from vllm import SamplingParams
 
-    history: list[dict[str, str]] = []
-    generated: list[dict[str, str]] = []
-    audio_ids: list[int] = []
-    turn_token_counts: list[int] = []
-    finish_reasons: list[str] = []
+    histories: list[list[dict[str, str]]] = [[] for _ in seeds]
+    generated: list[list[dict[str, str]]] = [[] for _ in seeds]
+    audio_ids: list[list[int]] = [[] for _ in seeds]
+    turn_token_counts: list[list[int]] = [[] for _ in seeds]
+    finish_reasons: list[list[str]] = [[] for _ in seeds]
     assistant_turn = 0
     for message in source_messages:
         role = message["role"]
         if role == "user":
             item = {"role": role, "content": message.get("content", "")}
-            history.append(item)
-            generated.append(item)
+            for history, trajectory in zip(histories, generated):
+                history.append(dict(item))
+                trajectory.append(dict(item))
             continue
         if role != "assistant":
             continue
         if assistant_turn >= max_turns:
             break
-        prompt = tokenizer.apply_chat_template(
-            history,
-            tokenize=False,
-            add_generation_prompt=True,
-        )
-        output = llm.generate([prompt], SamplingParams(**sampling_kwargs))[0].outputs[0]
-        reply = output.text.strip()
-        item = {"role": "assistant", "content": reply}
-        history.append(item)
-        generated.append(item)
-        ids = [int(value) for value in AUDIO_TOKEN_PATTERN.findall(reply)]
-        audio_ids.extend(ids)
-        turn_token_counts.append(len(output.token_ids))
-        finish_reasons.append(str(output.finish_reason))
+        prompts = [
+            tokenizer.apply_chat_template(
+                history,
+                tokenize=False,
+                add_generation_prompt=True,
+            )
+            for history in histories
+        ]
+        params = [
+            SamplingParams(**sampling_kwargs, seed=seed)
+            for seed in seeds
+        ]
+        outputs = llm.generate(prompts, params)
+        for index, request_output in enumerate(outputs):
+            output = request_output.outputs[0]
+            reply = output.text.strip()
+            item = {"role": "assistant", "content": reply}
+            histories[index].append(item)
+            generated[index].append(item)
+            ids = [int(value) for value in AUDIO_TOKEN_PATTERN.findall(reply)]
+            audio_ids[index].extend(ids)
+            turn_token_counts[index].append(len(output.token_ids))
+            finish_reasons[index].append(str(output.finish_reason))
         assistant_turn += 1
-    return generated, audio_ids, turn_token_counts, finish_reasons
+    return list(zip(generated, audio_ids, turn_token_counts, finish_reasons))
 
 
 def main() -> None:
@@ -116,21 +127,25 @@ def main() -> None:
         for row_index in indices:
             source = rows[row_index]
             prompt_id = str(source.get("prompt_id", f"muse_test_{row_index:03d}"))
-            for candidate_index in range(args.candidates_per_prompt):
-                seed = args.seed + row_index * 100_000 + candidate_index
-                messages, audio_ids, counts, reasons = _generate_trajectory(
-                    llm,
-                    tokenizer,
-                    source["messages"],
-                    max_turns=args.max_turns,
-                    sampling_kwargs={
-                        "max_tokens": args.max_tokens_per_turn,
-                        "temperature": args.temperature,
-                        "top_p": args.top_p,
-                        "repetition_penalty": args.repetition_penalty,
-                        "seed": seed,
-                    },
-                )
+            seeds = [
+                args.seed + row_index * 100_000 + candidate_index
+                for candidate_index in range(args.candidates_per_prompt)
+            ]
+            trajectories = _generate_trajectories(
+                llm,
+                tokenizer,
+                source["messages"],
+                seeds=seeds,
+                max_turns=args.max_turns,
+                sampling_kwargs={
+                    "max_tokens": args.max_tokens_per_turn,
+                    "temperature": args.temperature,
+                    "top_p": args.top_p,
+                    "repetition_penalty": args.repetition_penalty,
+                },
+            )
+            for candidate_index, (seed, trajectory) in enumerate(zip(seeds, trajectories)):
+                messages, audio_ids, counts, reasons = trajectory
                 record = {
                     "prompt_id": prompt_id,
                     "input_row": row_index,
