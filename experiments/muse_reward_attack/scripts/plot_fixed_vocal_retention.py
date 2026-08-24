@@ -57,7 +57,12 @@ def main() -> None:
     axis.set_xlabel("Counterfactual gain retention")
     axis.set_title(f"Do Best-of-{k} reward gains survive a fixed vocal?")
     axis.grid(axis="x", color="#e5e7eb", linewidth=0.7)
-    axis.legend(frameon=False, loc="lower right")
+    axis.legend(
+        frameon=False,
+        loc="lower center",
+        bbox_to_anchor=(0.5, 1.01),
+        ncol=2,
+    )
     fig.text(
         0.5,
         0.01,
@@ -66,7 +71,7 @@ def main() -> None:
         fontsize=8,
         color="#4b5563",
     )
-    fig.tight_layout(rect=(0, 0.04, 1, 1))
+    fig.tight_layout(rect=(0, 0.04, 1, 0.96))
     output = args.output.expanduser().resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output, dpi=180, bbox_inches="tight", facecolor="white")
