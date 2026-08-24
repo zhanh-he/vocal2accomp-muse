@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+#PBS -P wa66
+#PBS -q gpuhopper
+#PBS -l ncpus=12
+#PBS -l ngpus=1
+#PBS -l mem=96GB
+#PBS -l jobfs=100GB
+#PBS -l walltime=00:20:00
+#PBS -l storage=gdata/wa66+scratch/wa66
+#PBS -l wd
+#PBS -N muse-token-h200
+
+set -euo pipefail
+
+export PYTHONNOUSERSITE=1
+unset PYTHONHOME
+module purge
+module load python3/3.11.7
+
+REPO_DIR="${REPO_DIR:-${PBS_O_WORKDIR}}"
+ENV_DIR="${ENV_DIR:-/scratch/wa66/${USER}/envs/muse-grpo-cu128}"
+MODEL_DIR="${MODEL_DIR:-${REPO_DIR}/models/Muse-0.6b}"
+INPUT_FILE="${INPUT_FILE:-${REPO_DIR}/datasets/muse_official_test.jsonl}"
+OUTPUT_DIR="${REPO_DIR}/artifacts/cluster"
+mkdir -p "${OUTPUT_DIR}"
+
+export TMPDIR="${PBS_JOBFS}/tmp"
+export XDG_CACHE_HOME="${PBS_JOBFS}/cache/xdg"
+export HF_HOME="${PBS_JOBFS}/cache/huggingface"
+export TORCH_HOME="${PBS_JOBFS}/cache/torch"
+export TORCH_EXTENSIONS_DIR="${PBS_JOBFS}/cache/torch-extensions"
+export TORCHINDUCTOR_CACHE_DIR="${PBS_JOBFS}/cache/torch-inductor"
+export TRITON_CACHE_DIR="${PBS_JOBFS}/cache/triton"
+export CUDA_CACHE_PATH="${PBS_JOBFS}/cache/cuda"
+mkdir -p \
+  "${TMPDIR}" "${XDG_CACHE_HOME}" "${HF_HOME}" "${TORCH_HOME}" \
+  "${TORCH_EXTENSIONS_DIR}" "${TORCHINDUCTOR_CACHE_DIR}" \
+  "${TRITON_CACHE_DIR}" "${CUDA_CACHE_PATH}"
+
+export PYTHONUNBUFFERED=1
+export PYTHONDONTWRITEBYTECODE=1
+export VLLM_USE_FLASHINFER_SAMPLER="${VLLM_USE_FLASHINFER_SAMPLER:-1}"
+
+"${ENV_DIR}/bin/python" \
+  "${REPO_DIR}/experiments/open_reward_safety/scripts/muse_token_smoke.py" \
+  --model "${MODEL_DIR}" \
+  --input "${INPUT_FILE}" \
+  --output "${OUTPUT_DIR}/muse_h200_token_${PBS_JOBID}.json" \
+  --max-tokens "${MAX_TOKENS:-32}" \
+  --max-model-len "${MAX_MODEL_LEN:-4096}" \
+  --dtype bfloat16 \
+  --gpu-memory-utilization "${GPU_MEMORY_UTILIZATION:-0.5}"

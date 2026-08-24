@@ -34,6 +34,8 @@ mir/reward_safety.py          Pair, risk-coverage, noise, and KL-radius metrics
 finetuning/grpo_muse/         Generator-neutral separated-stem reward adapter
 experiments/open_reward_safety/
                               Frozen public experiment protocol and scripts
+experiments/open_reward_safety/cluster/
+                              5090, Kaya, and Gadi distributed smoke launchers
 literature/                   Source-linked public reading notes
 MyNotes/                      Versioned research decisions and experiment logs
 tests/                        Unit tests for scorer and safety math
@@ -85,9 +87,19 @@ Beat This is an optional open detector backend and is not vendored here.
 
 The complete frozen protocol is in
 [`experiments/open_reward_safety/README.md`](experiments/open_reward_safety/README.md).
-The first executable gate scores exact iKala/MIR-1K stems under controlled
-offset, drift, gap, click, codec, resampling, and gain transformations. Online
-GRPO starts only after scorer and separator qualification.
+The complete gate is designed to score exact iKala/MIR-1K stems under controlled
+offset, drift, gap, click, codec, resampling, and gain transformations. The
+executed pilot covers offset, local shift, event-rate resampling, gaps, coverage
+attacks, and gain nuisance. Online GRPO starts only after scorer and separator
+qualification.
+
+The first 50-clip MIR-1K E1 pilot completed on 2026-08-24. Beat v5 ranked the
+600 controlled beat pairs better than Beat v2, but reached only 53.2% strict
+accuracy and the current evidence confidence failed risk-coverage selection.
+This is a no-go for online GRPO with the current scorer/confidence contract; see
+[`experiments/open_reward_safety/README.md`](experiments/open_reward_safety/README.md)
+and the [committed E1 receipt](experiments/open_reward_safety/receipts/e1_mir1k_pilot50_20260824/README.md)
+for the exact result and caveats.
 
 ## Reproducibility
 

@@ -1,6 +1,7 @@
 # Open Reward-Safety Study
 
-Status: protocol and implementation preparation. No result is claimed here.
+Status: E0 complete; the first exploratory E1 pilot is complete and did not
+pass the confidence or exact-stem promotion gates. Online GRPO remains blocked.
 
 ## Objective
 
@@ -174,3 +175,66 @@ E0 environment and cache receipt
 
 Each stage emits resolved configuration, source/model commits, hashes, raw
 component scores, and an immutable summary before the next stage starts.
+
+## Executed E1 pilot: 2026-08-24
+
+The first exploratory run used 50 MIR-1K clips clustered into 38 source songs.
+It produced 600 beat-target pairs within a 950-pair controlled benchmark. Ties
+count as errors in the primary accuracy.
+
+| reward | pooled strict accuracy | source-cluster bootstrap 95% CI | held-out test |
+| --- | ---: | ---: | ---: |
+| Beat v2 | 47.7% | 37.0%--58.0% | 41.2% |
+| Beat v5 | 53.2% | 43.5%--62.9% | 56.6% |
+
+Beat v5 was better than Beat v2 in the paired pooled comparison (5.5 percentage
+points, exact McNemar p=0.0288) and on the held-out test split (15.4 points,
+p=0.00049). This relative improvement is not an online-RL qualification: v5
+remained near chance, failed local-shift and event-rate severity monotonicity,
+and its evidence confidence did not reduce selective risk. Evidence confidence
+was exactly 1.0 for 96.2% of the 1,000 candidates.
+
+The signed offset sweep also showed that the unmodified `0 ms` candidate was the
+strict per-clip optimum for only 8/50 clips under v2 and 12/50 under v5. The
+result therefore diagnoses two problems at once: the rewards are not qualified,
+and natural performance lead/lag makes `clean > every shift` an unsafe universal
+label contract without beat annotation or human verification.
+
+Decision: do not start E2--E4 with the current confidence definition. First
+separate detector sufficiency from pair-direction uncertainty, verify the clean
+versus corruption label contract with stronger beat annotations or human checks,
+and repeat the exact-stem gate on a larger source-clustered set. The frozen
+receipt and figures are under
+`receipts/e1_mir1k_pilot50_20260824/`.
+
+## MIR-1K executable path
+
+The first E1 pilot uses the original MIR-1K stereo contract: accompaniment on
+the left channel and vocal on the right. `build_mir1k_manifest.py` splits stems
+and assigns source-clustered calibration/dev/test partitions.
+
+```bash
+python experiments/open_reward_safety/scripts/build_mir1k_manifest.py \
+  --wav-dir /path/to/MIR-1K/Wavfile \
+  --output-root /path/to/run/stems \
+  --manifest /path/to/run/clean.jsonl
+
+python experiments/open_reward_safety/scripts/generate_perturbation_pairs.py \
+  --clean-manifest /path/to/run/clean.jsonl \
+  --output-root /path/to/run/perturbations \
+  --candidate-manifest /path/to/run/candidates.jsonl \
+  --pair-manifest /path/to/run/pairs.jsonl
+```
+
+The pilot includes constant offsets, a four-second local shift, event-rate
+resampling, contiguous gaps, noise/loop coverage attacks, and gain nuisance
+pairs. Gain pairs are explicitly labelled invariant rather than degraded.
+
+Each pair also declares `target_dimension` and `pair_kind`. Beat accuracy uses
+only beat-targeted directional pairs; Coverage accuracy uses only silence-gap
+pairs. Noise/loop fills remain overall guardrail attacks, and gain pairs report
+absolute reward movement instead of directional accuracy. Reports include both
+decided-only accuracy and strict accuracy, where a tie on a directional pair is
+counted as a failure, with a source-clustered bootstrap interval for the latter.
+Gain candidates record their clipping fraction; clipped gain pairs are retained
+as diagnostics but excluded from the nuisance-invariance headline statistic.

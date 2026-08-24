@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+#PBS -P wa66
+#PBS -q gpuhopper
+#PBS -l ncpus=48
+#PBS -l ngpus=4
+#PBS -l mem=256GB
+#PBS -l jobfs=100GB
+#PBS -l walltime=00:10:00
+#PBS -l storage=gdata/wa66+scratch/wa66
+#PBS -l wd
+#PBS -N muse-ddp-h200-4g
+
+set -euo pipefail
+
+export PYTHONNOUSERSITE=1
+unset PYTHONHOME
+module purge
+module load pytorch/2.12.0
+REPO_DIR="${REPO_DIR:-${PBS_O_WORKDIR}}"
+mkdir -p "${REPO_DIR}/artifacts/cluster"
+
+if [[ "${PBS_NGPUS:-0}" != "4" ]]; then
+  printf 'expected PBS_NGPUS=4, got %s\n' "${PBS_NGPUS:-unset}" >&2
+  exit 1
+fi
+
+export TMPDIR="${PBS_JOBFS}/tmp"
+export XDG_CACHE_HOME="${PBS_JOBFS}/cache/xdg"
+export TORCH_HOME="${PBS_JOBFS}/cache/torch"
+export TORCH_EXTENSIONS_DIR="${PBS_JOBFS}/cache/torch-extensions"
+export TORCHINDUCTOR_CACHE_DIR="${PBS_JOBFS}/cache/torch-inductor"
+export TRITON_CACHE_DIR="${PBS_JOBFS}/cache/triton"
+export CUDA_CACHE_PATH="${PBS_JOBFS}/cache/cuda"
+mkdir -p \
+  "${TMPDIR}" "${XDG_CACHE_HOME}" "${TORCH_HOME}" \
+  "${TORCH_EXTENSIONS_DIR}" "${TORCHINDUCTOR_CACHE_DIR}" \
+  "${TRITON_CACHE_DIR}" "${CUDA_CACHE_PATH}"
+
+export PYTHONUNBUFFERED=1
+export PYTHONDONTWRITEBYTECODE=1
+export NCCL_DEBUG="${NCCL_DEBUG:-INFO}"
+export TORCH_NCCL_ASYNC_ERROR_HANDLING=1
+
+python3 -m torch.distributed.run \
+  --standalone \
+  --nproc_per_node=4 \
+  "${REPO_DIR}/experiments/open_reward_safety/cluster/distributed_smoke.py" \
+  --payload-mb "${PAYLOAD_MB:-128}" \
+  --iterations "${ITERATIONS:-12}"
