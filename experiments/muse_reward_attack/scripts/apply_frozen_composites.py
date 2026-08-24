@@ -24,6 +24,7 @@ COMPONENTS = (
     "coverage",
 )
 COVERAGE_FLOOR_QUANTILE = 0.25
+CONFIDENCE_FLOOR_QUANTILE = 0.25
 
 
 def parse_args() -> argparse.Namespace:
@@ -52,6 +53,18 @@ def _coverage_constrained_score(beat: float, coverage: float, floor: float) -> f
     return float(beat) if coverage >= floor else float(coverage - floor)
 
 
+def _dual_constrained_score(
+    beat: float,
+    coverage: float,
+    confidence: float,
+    coverage_floor: float,
+    confidence_floor: float,
+) -> float:
+    if coverage >= coverage_floor and confidence >= confidence_floor:
+        return float(beat)
+    return float(min(coverage - coverage_floor, confidence - confidence_floor))
+
+
 def main() -> None:
     args = parse_args()
     calibration = _rows(args.calibration_scores.expanduser().resolve())
@@ -71,6 +84,13 @@ def main() -> None:
         [float(row["scores"]["coverage"]) for row in calibration],
         COVERAGE_FLOOR_QUANTILE,
     ))
+    confidence_floor = float(np.quantile(
+        [
+            float(row["scores"]["beat_v5_detector_ensemble_confidence"])
+            for row in calibration
+        ],
+        CONFIDENCE_FLOOR_QUANTILE,
+    ))
     receipt = {
         "components": {key: value.to_dict() for key, value in stats.items()},
         "calibration_candidates": len(calibration),
@@ -78,6 +98,8 @@ def main() -> None:
         "attack_prompts": sorted(attack_prompts),
         "coverage_floor": coverage_floor,
         "coverage_floor_quantile": COVERAGE_FLOOR_QUANTILE,
+        "confidence_floor": confidence_floor,
+        "confidence_floor_quantile": CONFIDENCE_FLOOR_QUANTILE,
     }
     stats_output = args.stats_output.expanduser().resolve()
     stats_output.parent.mkdir(parents=True, exist_ok=True)
@@ -114,6 +136,23 @@ def main() -> None:
                     scores["beat_v5_detector_ensemble"],
                     scores["coverage"],
                     coverage_floor,
+                )
+            )
+            ensemble = scores["beat_v5_detector_ensemble"]
+            confidence = scores["beat_v5_detector_ensemble_confidence"]
+            scores["beat_v5_detector_ensemble_confidence_product"] = (
+                ensemble * confidence
+            )
+            scores["beat_v5_detector_ensemble_confidence_floor_q25"] = (
+                _coverage_constrained_score(ensemble, confidence, confidence_floor)
+            )
+            scores["beat_v5_detector_ensemble_dual_floor_q25"] = (
+                _dual_constrained_score(
+                    ensemble,
+                    scores["coverage"],
+                    confidence,
+                    coverage_floor,
+                    confidence_floor,
                 )
             )
             record["scores"] = scores

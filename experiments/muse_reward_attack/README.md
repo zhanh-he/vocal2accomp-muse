@@ -34,6 +34,8 @@ and evaluation sample budget are reused across arms.
 - Beat v2/v5 + Coverage with raw equal weights;
 - Beat v2/v5 + Coverage after calibration-frozen per-term standardization;
 - Beat subject to the disjoint calibration set's frozen Coverage Q25 floor.
+- detector-ensemble score times confidence, a frozen confidence Q25 floor, and
+  a joint confidence/Coverage Q25 floor as selective-update prototypes.
 
 Online group standardization is diagnostic only. It changes the measuring scale
 with every rollout group and can amplify a tiny wrong component difference.
