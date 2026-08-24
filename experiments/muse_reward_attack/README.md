@@ -32,7 +32,7 @@ and evaluation sample budget are reused across arms.
 - MuseCritic Mean5 and each of its five heads;
 - Beat v2/v5 + Coverage with raw equal weights;
 - Beat v2/v5 + Coverage after calibration-frozen per-term standardization;
-- Beat subject to a frozen Coverage floor.
+- Beat subject to the disjoint calibration set's frozen Coverage Q25 floor.
 
 Online group standardization is diagnostic only. It changes the measuring scale
 with every rollout group and can amplify a tiny wrong component difference.

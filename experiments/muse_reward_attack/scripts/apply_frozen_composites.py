@@ -8,6 +8,8 @@ import json
 import sys
 from pathlib import Path
 
+import numpy as np
+
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
@@ -16,6 +18,7 @@ from mir.composite_reward import ComponentStats
 
 
 COMPONENTS = ("beat_v2", "beat_v5_madmom", "coverage")
+COVERAGE_FLOOR_QUANTILE = 0.25
 
 
 def parse_args() -> argparse.Namespace:
@@ -39,6 +42,11 @@ def _z(value: float, stats: ComponentStats) -> float:
     return (float(value) - stats.mean) / stats.std
 
 
+def _coverage_constrained_score(beat: float, coverage: float, floor: float) -> float:
+    """Lexicographically prefer feasible coverage, then maximize beat."""
+    return float(beat) if coverage >= floor else float(coverage - floor)
+
+
 def main() -> None:
     args = parse_args()
     calibration = _rows(args.calibration_scores.expanduser().resolve())
@@ -54,11 +62,17 @@ def main() -> None:
         key: ComponentStats.fit([float(row["scores"][key]) for row in calibration])
         for key in COMPONENTS
     }
+    coverage_floor = float(np.quantile(
+        [float(row["scores"]["coverage"]) for row in calibration],
+        COVERAGE_FLOOR_QUANTILE,
+    ))
     receipt = {
         "components": {key: value.to_dict() for key, value in stats.items()},
         "calibration_candidates": len(calibration),
         "calibration_prompts": sorted(calibration_prompts),
         "attack_prompts": sorted(attack_prompts),
+        "coverage_floor": coverage_floor,
+        "coverage_floor_quantile": COVERAGE_FLOOR_QUANTILE,
     }
     stats_output = args.stats_output.expanduser().resolve()
     stats_output.parent.mkdir(parents=True, exist_ok=True)
@@ -76,6 +90,12 @@ def main() -> None:
             scores["beat_v5_coverage_frozen_std"] = 0.5 * (
                 _z(scores["beat_v5_madmom"], stats["beat_v5_madmom"])
                 + _z(scores["coverage"], stats["coverage"])
+            )
+            scores["beat_v2_coverage_floor_q25"] = _coverage_constrained_score(
+                scores["beat_v2"], scores["coverage"], coverage_floor
+            )
+            scores["beat_v5_coverage_floor_q25"] = _coverage_constrained_score(
+                scores["beat_v5_madmom"], scores["coverage"], coverage_floor
             )
             record["scores"] = scores
             record["frozen_stats_receipt"] = str(stats_output)
