@@ -143,6 +143,7 @@ def main() -> None:
                 result = scorer.score_paths(vocal, accompaniment)
                 key = f"beat_v5_{backend}"
                 scores[key] = result.score
+                scores[f"{key}_confidence"] = result.confidence
                 diagnostics[key] = {
                     "confidence": result.confidence,
                     "abstain": result.abstain,
@@ -157,6 +158,7 @@ def main() -> None:
             scores["repetition_rate"] = _token_repetition_rate(row.get("audio_token_ids", []))
             if "beat_v5_madmom" in scores:
                 beat_v5 = scores["beat_v5_madmom"]
+                scores["beat_v2_v5_gap"] = abs(scores["beat_v2"] - beat_v5)
                 scores["beat_v2_v5_mean"] = 0.5 * (scores["beat_v2"] + beat_v5)
                 scores["beat_v2_coverage_raw"] = 0.5 * (scores["beat_v2"] + coverage)
                 scores["beat_v5_coverage_raw"] = 0.5 * (beat_v5 + coverage)
@@ -169,6 +171,10 @@ def main() -> None:
                         _frozen_z(beat_v5, frozen_stats, "beat_v5_madmom")
                         + _frozen_z(coverage, frozen_stats, "coverage")
                     )
+            if "beat_v5_madmom" in scores and "beat_v5_beat_this" in scores:
+                scores["beat_v5_detector_gap"] = abs(
+                    scores["beat_v5_madmom"] - scores["beat_v5_beat_this"]
+                )
             record = dict(row)
             record["scores"] = scores
             record["score_diagnostics"] = diagnostics
