@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -41,6 +42,7 @@ def main() -> None:
 
     root = args.mucodec_root.expanduser().resolve()
     sys.path.insert(0, str(root))
+    os.chdir(root)
     from generate import MuCodec
 
     checkpoint = args.checkpoint.expanduser().resolve()
