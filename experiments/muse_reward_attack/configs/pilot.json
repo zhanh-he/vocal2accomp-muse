@@ -10,6 +10,8 @@
     "max_tokens_per_turn_smoke": 256
   },
   "best_of_k": {
+    "calibration_prompts": 8,
+    "calibration_candidates": 4,
     "pilot_prompts": 8,
     "max_candidates": 16,
     "prefix_k": [1, 2, 4, 8, 16],

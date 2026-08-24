@@ -130,10 +130,15 @@ generation, but confirmatory runs use the official 4096-token ceiling.
 
 ### A0.2 Best-of-K pilot
 
+- 8 disjoint calibration prompts, K=4, for frozen component statistics;
 - 8 prompts, Kmax=16, prefix K in `{1,2,4,8,16}`;
 - MuCodec 20-step decode for all candidates;
 - all reward arms and automatic controls;
 - blind listening pack for the strongest proxy-control disagreements.
+
+`apply_frozen_composites.py` refuses calibration/attack prompt overlap. Frozen
+statistics are fit on all unselected calibration candidates and are reused at
+every attack pressure point; they are never recomputed on the selected group.
 
 ### A1 GRPO pilot
 
