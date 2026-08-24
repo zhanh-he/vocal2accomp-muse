@@ -55,12 +55,15 @@ def main() -> None:
     axis.axvline(1.0, color="#6b7280", linewidth=0.8, linestyle="--")
     axis.set_yticks(positions, labels)
     axis.set_xlabel("Counterfactual gain retention")
-    axis.set_title(f"Do Best-of-{k} reward gains survive a fixed vocal?")
     axis.grid(axis="x", color="#e5e7eb", linewidth=0.7)
-    axis.legend(
+    handles, legend_labels = axis.get_legend_handles_labels()
+    fig.suptitle(f"Do Best-of-{k} reward gains survive a fixed vocal?", y=0.995)
+    fig.legend(
+        handles,
+        legend_labels,
         frameon=False,
-        loc="lower center",
-        bbox_to_anchor=(0.5, 1.01),
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.965),
         ncol=2,
     )
     fig.text(
@@ -71,7 +74,7 @@ def main() -> None:
         fontsize=8,
         color="#4b5563",
     )
-    fig.tight_layout(rect=(0, 0.04, 1, 0.96))
+    fig.tight_layout(rect=(0, 0.04, 1, 0.90))
     output = args.output.expanduser().resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output, dpi=180, bbox_inches="tight", facecolor="white")
