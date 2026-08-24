@@ -145,6 +145,11 @@ generation, but confirmatory runs use the official 4096-token ceiling.
 statistics are fit on all unselected calibration candidates and are reused at
 every attack pressure point; they are never recomputed on the selected group.
 
+`build_blind_listening_pack.py` ranks Kmax proxy-control disagreements, removes
+duplicate audio pairs across reward arms, and randomizes A/B direction with a
+fixed seed. The listening sheet and the separate unblinding key must not be
+opened together during annotation.
+
 Because Muse co-generates both sides of the beat comparison,
 `build_fixed_vocal_counterfactual.py` additionally freezes candidate 0's vocal
 for each prompt and pairs it with every accompaniment candidate. This does not
