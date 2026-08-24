@@ -222,6 +222,13 @@ two datasets interchangeable: MIR-1K measures pair-direction risk, whereas the
 SongEval construct measures exact `clean > 70 ms > 120 ms` ordering. The
 composite remains exploratory pending source-held-out and human validation.
 
+The configured Beat + Coverage arms were also audited on the same 600 E1 beat
+pairs. `Beat v2 + Coverage` with calibration-frozen per-term scaling reached
+23.3% risk at 25% coverage and 35.2% full risk. This is not a valid Beat result:
+Coverage alone orders 99.3% of constant-offset and 100% of local-shift pairs in
+the requested direction because those perturbations expose padding/truncation
+artifacts. The composite curve is retained as a benchmark-leakage warning.
+
 Figures, summary data, definitions, and caveats are frozen under
 `receipts/selective_risk_comparison_20260824/`.
 

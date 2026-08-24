@@ -87,6 +87,13 @@ def summarize_curve(
 def load_e1(scores_path: Path, pairs_path: Path):
     score_rows = [json.loads(line) for line in scores_path.read_text().splitlines() if line]
     scores = {row["candidate_id"]: row for row in score_rows}
+    calibration = [row for row in score_rows if row["split"] == "calibration"]
+    calibration_std = {
+        component: float(
+            np.std([row["scores"][component] for row in calibration], ddof=1)
+        )
+        for component in ("beat_v2", "beat_v5", "coverage")
+    }
     pairs = [
         json.loads(line)
         for line in pairs_path.read_text().splitlines()
@@ -103,6 +110,10 @@ def load_e1(scores_path: Path, pairs_path: Path):
         "Beat v5 margin": ([], []),
         "V2/V5 raw mean margin": ([], []),
         "V5 evidence confidence": ([], []),
+        "Beat v2 + Coverage (raw)": ([], []),
+        "Beat v5 + Coverage (raw)": ([], []),
+        "Beat v2 + Coverage (frozen std)": ([], []),
+        "Beat v5 + Coverage (frozen std)": ([], []),
     }
     for pair in pairs:
         left = scores[pair["candidate_a"]]
@@ -114,7 +125,20 @@ def load_e1(scores_path: Path, pairs_path: Path):
         v5_margin = float(left["scores"]["beat_v5"]) - float(
             right["scores"]["beat_v5"]
         )
+        coverage_margin = float(left["scores"]["coverage"]) - float(
+            right["scores"]["coverage"]
+        )
         mean_margin = 0.5 * (v2_margin + v5_margin)
+        v2_coverage_raw = 0.5 * (v2_margin + coverage_margin)
+        v5_coverage_raw = 0.5 * (v5_margin + coverage_margin)
+        v2_coverage_frozen = 0.5 * (
+            v2_margin / calibration_std["beat_v2"]
+            + coverage_margin / calibration_std["coverage"]
+        )
+        v5_coverage_frozen = 0.5 * (
+            v5_margin / calibration_std["beat_v5"]
+            + coverage_margin / calibration_std["coverage"]
+        )
         evidence = min(
             float(left["beat_v5_confidence"]),
             float(right["beat_v5_confidence"]),
@@ -124,6 +148,26 @@ def load_e1(scores_path: Path, pairs_path: Path):
             ("Beat v5 margin", v5_margin, abs(v5_margin)),
             ("V2/V5 raw mean margin", mean_margin, abs(mean_margin)),
             ("V5 evidence confidence", v5_margin, evidence),
+            (
+                "Beat v2 + Coverage (raw)",
+                v2_coverage_raw,
+                abs(v2_coverage_raw),
+            ),
+            (
+                "Beat v5 + Coverage (raw)",
+                v5_coverage_raw,
+                abs(v5_coverage_raw),
+            ),
+            (
+                "Beat v2 + Coverage (frozen std)",
+                v2_coverage_frozen,
+                abs(v2_coverage_frozen),
+            ),
+            (
+                "Beat v5 + Coverage (frozen std)",
+                v5_coverage_frozen,
+                abs(v5_coverage_frozen),
+            ),
         ):
             methods[method][0].append(confidence)
             methods[method][1].append(_sign(margin) == label)
@@ -197,7 +241,8 @@ def plot_e1(methods, output_dir: Path) -> None:
     }
     figure, axis = plt.subplots(figsize=(10.2, 6.1))
     figure.subplots_adjust(left=0.13, right=0.98, bottom=0.13, top=0.80)
-    for method, (confidence, correct) in methods.items():
+    for method in styles:
+        confidence, correct = methods[method]
         coverage, risk = risk_curve(confidence, correct)
         color, linestyle, width = styles[method]
         axis.plot(
@@ -234,6 +279,65 @@ def plot_e1(methods, output_dir: Path) -> None:
     axis.set_axisbelow(True)
     figure.legend(frameon=False, ncol=2, loc="upper right", bbox_to_anchor=(0.98, 0.91))
     _save(figure, output_dir, "e1_margin_risk_coverage_comparison")
+
+
+def plot_e1_composites(methods, output_dir: Path) -> None:
+    order = [
+        "Beat v2 margin",
+        "Beat v2 + Coverage (raw)",
+        "Beat v2 + Coverage (frozen std)",
+        "Beat v5 margin",
+        "Beat v5 + Coverage (raw)",
+        "Beat v5 + Coverage (frozen std)",
+    ]
+    styles = {
+        "Beat v2 margin": (GOLD, "--"),
+        "Beat v2 + Coverage (raw)": (ORANGE, "-"),
+        "Beat v2 + Coverage (frozen std)": (PINK, "-."),
+        "Beat v5 margin": (BLUE, "--"),
+        "Beat v5 + Coverage (raw)": ("#238C8C", "-"),
+        "Beat v5 + Coverage (frozen std)": (INK, "-."),
+    }
+    figure, axis = plt.subplots(figsize=(10.4, 6.3))
+    figure.subplots_adjust(left=0.13, right=0.98, bottom=0.13, top=0.78)
+    for method in order:
+        confidence, correct = methods[method]
+        coverage, risk = risk_curve(confidence, correct)
+        color, linestyle = styles[method]
+        axis.plot(
+            coverage,
+            risk,
+            label=method,
+            color=color,
+            linestyle=linestyle,
+            linewidth=2.0,
+        )
+    axis.axhline(0.5, color=MUTED, linewidth=1.2, linestyle=(0, (2, 3)), label="50% error")
+    axis.axvline(0.25, color=GRID, linewidth=1.2, linestyle="--")
+    axis.text(0.255, 0.685, "25% gate", color=MUTED, fontsize=9, va="top")
+    axis.set_xlim(0.10, 1.0)
+    axis.set_ylim(0.10, 0.70)
+    axis.set_xlabel("Accepted pair coverage")
+    axis.set_ylabel("Selective pair risk (error rate)")
+    figure.suptitle(
+        "MIR-1K Beat + Coverage composite risk-coverage",
+        x=0.13,
+        y=0.97,
+        ha="left",
+        fontsize=15,
+        fontweight="bold",
+    )
+    figure.text(
+        0.13,
+        0.91,
+        "600 beat-target pairs; equal component weights; frozen statistics use calibration candidates",
+        color=MUTED,
+        fontsize=9.5,
+    )
+    axis.grid(color=GRID, linewidth=0.8)
+    axis.set_axisbelow(True)
+    figure.legend(frameon=False, ncol=3, loc="upper right", bbox_to_anchor=(0.98, 0.89))
+    _save(figure, output_dir, "e1_beat_coverage_composite_risk_coverage")
 
 
 def plot_controlled(methods, output_dir: Path) -> None:
@@ -311,6 +415,7 @@ def main() -> None:
     e1_methods = load_e1(args.e1_scores, args.e1_pairs)
     controlled_methods = load_controlled(args.controlled_pairs)
     plot_e1(e1_methods, output_dir)
+    plot_e1_composites(e1_methods, output_dir)
     plot_controlled(controlled_methods, output_dir)
     summaries = []
     for dataset, methods in (

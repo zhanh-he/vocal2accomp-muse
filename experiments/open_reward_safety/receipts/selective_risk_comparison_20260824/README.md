@@ -39,6 +39,29 @@ margins are also anti-informative on this pilot. The untuned V2/V5 raw mean has
 the best full-coverage error, but V2 alone remains better at the proposed 25%
 selective gate.
 
+## Beat + Coverage composite diagnostic
+
+The actual Beat + Coverage reward arms can also be used as selection scores.
+`raw` is an equal-weight arithmetic mean. `frozen std` uses equal weights after
+dividing each pair margin by the component sample standard deviation fitted
+once on the E1 calibration candidates (`v2=0.2381`, `v5=0.1728`,
+`Coverage=0.0958`). Statistics are not recomputed per split or accepted subset.
+
+| selection score | risk at 25% | risk at 50% | full risk | AURC |
+| --- | ---: | ---: | ---: | ---: |
+| Beat v2 + Coverage (raw) | 28.0% | 35.0% | 38.3% | 0.336 |
+| Beat v5 + Coverage (raw) | 48.0% | 44.0% | 41.8% | 0.447 |
+| Beat v2 + Coverage (frozen std) | **23.3%** | **30.0%** | **35.2%** | **0.279** |
+| Beat v5 + Coverage (frozen std) | 44.0% | 39.3% | 39.0% | 0.394 |
+
+This apparent gain is confounded. Coverage alone identifies 99.3% of constant
+offset pairs and 100% of local-shift pairs in the requested direction, while it
+is only 51.5% accurate on event-rate resampling. The offset/local-shift
+generators create boundary padding, truncation, or gap artifacts that Coverage
+can detect. The composite therefore partly recognizes the corruption pipeline
+instead of rhythmic alignment. It is a useful benchmark-leakage diagnostic,
+not evidence that Beat + Coverage is a qualified beat reward.
+
 ## SongEval controlled exact order
 
 This study has 94 signed-direction groups from 47 songs. A group is correct
@@ -80,6 +103,7 @@ the current V5 evidence confidence or any composite for online GRPO.
 ## Files
 
 - `e1_margin_risk_coverage_comparison.png` and `.svg`
+- `e1_beat_coverage_composite_risk_coverage.png` and `.svg`
 - `songeval_exact_order_risk_coverage_comparison.png` and `.svg`
 - `selective_risk_summary.csv`
 
