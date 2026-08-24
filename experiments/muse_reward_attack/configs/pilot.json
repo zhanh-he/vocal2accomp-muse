@@ -53,5 +53,10 @@
   "radius": {
     "consecutive_failures": 2,
     "catastrophic_invalid_increase": 0.1
+  },
+  "bootstrap": {
+    "samples": 2000,
+    "ci": 0.95,
+    "seed": 20260824
   }
 }

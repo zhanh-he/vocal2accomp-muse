@@ -93,6 +93,11 @@ For reward arm `a`, the provisional radius is the largest connected distance
 from zero before a preregistered guardrail fails twice consecutively. A
 catastrophic invalid/silence/repetition jump stops immediately.
 
+Pilot tables separate point-estimate failures from failures whose prompt-paired
+bootstrap interval is wholly beyond the non-inferiority budget. With only eight
+attack prompts, the former is a screening signal and the latter is still not a
+substitute for the confirmatory run.
+
 ## Primary trajectories
 
 For every arm and pressure point, plot:

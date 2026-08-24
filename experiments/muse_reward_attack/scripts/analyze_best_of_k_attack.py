@@ -47,6 +47,30 @@ def _within_prompt_scale(rows, key: str) -> float:
     return max(float(np.std(residuals, ddof=1)), 1e-8)
 
 
+def _paired_delta_ci(
+    selected,
+    baseline,
+    key: str,
+    *,
+    rng: np.random.Generator,
+    samples: int,
+    ci: float,
+    direction: str = "higher",
+) -> tuple[float, float]:
+    baseline_by_prompt = {str(row["prompt_id"]): row for row in baseline}
+    deltas = np.asarray([
+        float(row["scores"][key])
+        - float(baseline_by_prompt[str(row["prompt_id"])]["scores"][key])
+        for row in selected
+    ])
+    if direction == "lower":
+        deltas = -deltas
+    draws = rng.integers(0, len(deltas), size=(samples, len(deltas)))
+    means = np.mean(deltas[draws], axis=1)
+    tail = (1.0 - ci) / 2.0
+    return tuple(float(value) for value in np.quantile(means, [tail, 1.0 - tail]))
+
+
 def main() -> None:
     args = parse_args()
     rows = [
@@ -60,6 +84,12 @@ def main() -> None:
         set(row["scores"]) for row in rows
     )))
     thresholds = config["automatic_noninferiority"]
+    bootstrap = config.get("bootstrap", {})
+    bootstrap_samples = int(bootstrap.get("samples", 2_000))
+    bootstrap_ci = float(bootstrap.get("ci", 0.95))
+    rng = np.random.default_rng(int(bootstrap.get("seed", 20260824)))
+    if bootstrap_samples < 1 or not 0.0 < bootstrap_ci < 1.0:
+        raise ValueError("invalid bootstrap configuration")
     missing_controls = sorted(set(thresholds) - set(available_scores))
     if missing_controls:
         raise KeyError(f"missing preregistered control scores: {missing_controls}")
@@ -80,6 +110,7 @@ def main() -> None:
             selected = select_best_of_k(rows, score_key, k)
             means = {key: _mean(selected, key) for key in available_scores}
             failure_reasons = []
+            confirmed_failure_reasons = []
             for control, boundary in thresholds.items():
                 if control not in means:
                     continue
@@ -104,6 +135,16 @@ def main() -> None:
                 "failed": bool(failure_reasons),
                 "failure_reasons": ";".join(failure_reasons),
             }
+            proxy_ci = _paired_delta_ci(
+                selected,
+                baseline,
+                score_key,
+                rng=rng,
+                samples=bootstrap_samples,
+                ci=bootstrap_ci,
+            )
+            summary["proxy_gain_ci_low"] = proxy_ci[0]
+            summary["proxy_gain_ci_high"] = proxy_ci[1]
             summary.update({f"mean_{key}": value for key, value in means.items()})
             summary.update({
                 f"delta_{key}": value - baseline_means[key]
@@ -113,7 +154,25 @@ def main() -> None:
                 delta = means[control] - baseline_means[control]
                 if boundary["direction"] == "lower":
                     delta = -delta
-                summary[f"control_budget_{control}"] = delta / float(boundary["delta"])
+                budget = float(boundary["delta"])
+                summary[f"control_budget_{control}"] = delta / budget
+                ci_low, ci_high = _paired_delta_ci(
+                    selected,
+                    baseline,
+                    control,
+                    rng=rng,
+                    samples=bootstrap_samples,
+                    ci=bootstrap_ci,
+                    direction=str(boundary["direction"]),
+                )
+                summary[f"control_budget_{control}_ci_low"] = ci_low / budget
+                summary[f"control_budget_{control}_ci_high"] = ci_high / budget
+                if ci_high / budget < -1.0:
+                    confirmed_failure_reasons.append(control)
+            summary["confirmed_failed"] = bool(confirmed_failure_reasons)
+            summary["confirmed_failure_reasons"] = ";".join(
+                confirmed_failure_reasons
+            )
             summaries.append(summary)
             arm_rows.append(summary)
             for row in selected:
@@ -131,9 +190,15 @@ def main() -> None:
             [row["failed"] for row in arm_rows],
             consecutive=int(config["radius"]["consecutive_failures"]),
         )
+        confirmed_radius = largest_connected_radius(
+            [row["bon_kl"] for row in arm_rows],
+            [row["confirmed_failed"] for row in arm_rows],
+            consecutive=int(config["radius"]["consecutive_failures"]),
+        )
         arm_receipts[arm] = {
             "score_key": score_key,
             "proxy_control_radius_bon_kl": radius,
+            "confirmed_proxy_control_radius_bon_kl": confirmed_radius,
             "human_radius_status": "pending_blind_labels",
         }
     if not summaries:
