@@ -1,0 +1,57 @@
+{
+  "components": {
+    "beat_v2": {
+      "mean": 0.6136026848456614,
+      "std": 0.2924936390865502,
+      "median": 0.6507864488808228,
+      "mad": 0.26099706744868034,
+      "count": 32
+    },
+    "beat_v5_madmom": {
+      "mean": 0.5182372120239281,
+      "std": 0.09433837953633072,
+      "median": 0.5123332190746912,
+      "mad": 0.07552146493466827,
+      "count": 32
+    },
+    "beat_v5_detector_ensemble": {
+      "mean": 0.5176909434265544,
+      "std": 0.0942026450356666,
+      "median": 0.5131594178425991,
+      "mad": 0.07318139605137353,
+      "count": 32
+    },
+    "coverage": {
+      "mean": 0.7661992747595061,
+      "std": 0.09531934826545298,
+      "median": 0.7635351454509782,
+      "mad": 0.08469946102598891,
+      "count": 32
+    }
+  },
+  "calibration_candidates": 32,
+  "calibration_prompts": [
+    "muse_test_001",
+    "muse_test_002",
+    "muse_test_003",
+    "muse_test_004",
+    "muse_test_005",
+    "muse_test_006",
+    "muse_test_007",
+    "muse_test_008"
+  ],
+  "attack_prompts": [
+    "muse_test_009",
+    "muse_test_010",
+    "muse_test_011",
+    "muse_test_012",
+    "muse_test_013",
+    "muse_test_014",
+    "muse_test_015",
+    "muse_test_016"
+  ],
+  "coverage_floor": 0.7117769009000063,
+  "coverage_floor_quantile": 0.25,
+  "confidence_floor": 0.9653272432810542,
+  "confidence_floor_quantile": 0.25
+}

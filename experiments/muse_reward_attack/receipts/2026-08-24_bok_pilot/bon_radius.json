@@ -1,0 +1,110 @@
+{
+  "beat_v2": {
+    "score_key": "beat_v2",
+    "proxy_control_radius_bon_kl": 0.0,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v5_madmom": {
+    "score_key": "beat_v5_madmom",
+    "proxy_control_radius_bon_kl": 0.1931471805599453,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v5_beat_this": {
+    "score_key": "beat_v5_beat_this",
+    "proxy_control_radius_bon_kl": 0.1931471805599453,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v5_detector_ensemble": {
+    "score_key": "beat_v5_detector_ensemble",
+    "proxy_control_radius_bon_kl": 0.1931471805599453,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v2_v5_mean": {
+    "score_key": "beat_v2_v5_mean",
+    "proxy_control_radius_bon_kl": 0.1931471805599453,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "musecritic_mean5": {
+    "score_key": "musecritic_mean5",
+    "proxy_control_radius_bon_kl": 0.0,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v2_coverage_raw": {
+    "score_key": "beat_v2_coverage_raw",
+    "proxy_control_radius_bon_kl": 1.8350887222397811,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v5_coverage_raw": {
+    "score_key": "beat_v5_coverage_raw",
+    "proxy_control_radius_bon_kl": 0.0,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v5_detector_ensemble_coverage_raw": {
+    "score_key": "beat_v5_detector_ensemble_coverage_raw",
+    "proxy_control_radius_bon_kl": 0.0,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v2_coverage_frozen_std": {
+    "score_key": "beat_v2_coverage_frozen_std",
+    "proxy_control_radius_bon_kl": 1.8350887222397811,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v5_coverage_frozen_std": {
+    "score_key": "beat_v5_coverage_frozen_std",
+    "proxy_control_radius_bon_kl": 0.0,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v5_detector_ensemble_coverage_frozen_std": {
+    "score_key": "beat_v5_detector_ensemble_coverage_frozen_std",
+    "proxy_control_radius_bon_kl": 0.0,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v2_coverage_floor_q25": {
+    "score_key": "beat_v2_coverage_floor_q25",
+    "proxy_control_radius_bon_kl": 0.0,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v5_coverage_floor_q25": {
+    "score_key": "beat_v5_coverage_floor_q25",
+    "proxy_control_radius_bon_kl": 0.1931471805599453,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v5_detector_ensemble_coverage_floor_q25": {
+    "score_key": "beat_v5_detector_ensemble_coverage_floor_q25",
+    "proxy_control_radius_bon_kl": 0.1931471805599453,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v5_detector_ensemble_confidence_product": {
+    "score_key": "beat_v5_detector_ensemble_confidence_product",
+    "proxy_control_radius_bon_kl": 0.0,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v5_detector_ensemble_confidence_floor_q25": {
+    "score_key": "beat_v5_detector_ensemble_confidence_floor_q25",
+    "proxy_control_radius_bon_kl": 0.0,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  },
+  "beat_v5_detector_ensemble_dual_floor_q25": {
+    "score_key": "beat_v5_detector_ensemble_dual_floor_q25",
+    "proxy_control_radius_bon_kl": 0.0,
+    "confirmed_proxy_control_radius_bon_kl": 1.8350887222397811,
+    "human_radius_status": "pending_blind_labels"
+  }
+}
