@@ -169,6 +169,11 @@ human-quality judgment, because the cross-candidate audio is out of support.
 normalized to one within each arm, so unlike raw score deltas it is comparable
 across differently scaled rewards.
 
+`plot_confidence_pressure.py` separately shows whether the v5 detector-ensemble
+confidence and disagreement react to Best-of-K pressure. It is a diagnostic,
+not a risk-coverage curve; risk-coverage requires frozen blind-human correctness
+labels.
+
 ### A1 GRPO pilot
 
 - 32 train prompts and 16 held-out prompts;
