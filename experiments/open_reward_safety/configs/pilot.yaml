@@ -1,0 +1,127 @@
+schema: vocal2accomp_muse.open_reward_safety
+version: 1
+status: design_only
+
+generator:
+  repo: https://github.com/yuhui1038/Muse
+  model: bolshyC/Muse-0.6b
+  tuner: lora
+  lora_rank: 16
+  lora_alpha: 32
+  reward_window_seconds: 45
+
+external_components:
+  musecritic:
+    repo: https://github.com/WuqnEl/MuseCritic
+    model: WuqnEl/MuseCritic
+  songeval:
+    repo: https://github.com/ASLP-lab/SongEval
+    role: evaluation_guardrail_only
+  cmi_rewardbench:
+    repo: https://github.com/Haiwen-Xia/CMI-RewardBench
+    role: overall_and_instruction_sanity_only
+  separator:
+    implementation: unresolved_until_environment_audit
+    checkpoint_sha256: required_before_scoring
+    frozen: true
+
+datasets:
+  exact_stem_primary:
+    - name: iKala
+      url: https://doi.org/10.5281/zenodo.3532213
+      split_unit: source_song
+    - name: MIR-1K
+      url: https://doi.org/10.5281/zenodo.3532216
+      split_unit: singer_song
+  exact_stem_external:
+    - name: MUSDB18-HQ
+      url: https://sigsep.github.io/datasets/musdb.html
+      optional: true
+  aesthetics:
+    - name: SongEval
+      url: https://huggingface.co/datasets/ASLP-lab/SongEval
+      beat_ground_truth: false
+  preferences:
+    - name: Music-Arena
+      url: https://huggingface.co/datasets/music-arena/music-arena-dataset
+      beat_ground_truth: false
+    - name: CMI-Pref
+      url: https://huggingface.co/datasets/HaiwenXia/cmi-pref
+      beat_ground_truth: false
+  online:
+    pilot_train_prompts: 64
+    confirm_train_prompts: 500
+    pilot_eval_prompts: 24
+    confirm_eval_prompts: 100
+
+split_policy:
+  calibration_fraction: 0.30
+  development_fraction: 0.20
+  test_fraction: 0.50
+  seed: 20260824
+  cluster_required: true
+
+reward_arms:
+  - id: musecritic_mean5
+    components: {musecritic_mean5: 1.0}
+  - id: beat_v2
+    components: {beat_v2: 1.0}
+  - id: beat_v5_madmom
+    components: {beat_v5: 1.0}
+  - id: beat_v5_beat_this
+    components: {beat_v5: 1.0}
+  - id: beat_v5_coverage_raw
+    components: {beat_v5: 0.5, coverage: 0.5}
+    term_scaling: raw
+  - id: beat_v5_coverage_frozen_std
+    components: {beat_v5: 0.5, coverage: 0.5}
+    term_scaling: frozen_std
+  - id: beat_v5_coverage_online_group_std
+    components: {beat_v5: 0.5, coverage: 0.5}
+    term_scaling: online_group_std
+    diagnostic_only: true
+
+perturbations:
+  offset_ms: [-320, -160, -80, -40, 40, 80, 160, 320]
+  drift_end_ms: [-320, -160, -80, 80, 160, 320]
+  local_shift_seconds: [0.160, 0.320]
+  local_window_seconds: [4, 8]
+  tempo_ratio: [0.94, 0.97, 1.03, 1.06]
+  onset_click_db: [-36, -30, -24]
+  gap_fraction: [0.05, 0.10, 0.20, 0.40]
+  nuisance:
+    gain_db: [-6, -3, 3]
+    crop_jitter_ms: [-20, 20]
+    codec: [wav_pcm16, flac, mp3_320k]
+    resample_hz: [16000, 24000, 44100, 48000]
+
+grpo:
+  seed: 42
+  num_generations: 4
+  learning_rate: 1.0e-6
+  train_epochs: 1
+  save_optimizer_steps: 5
+  stochastic_eval_temperature: 0.9
+  stochastic_eval_top_p: 0.9
+  greedy_eval_temperature: 0.0
+  reference_kl:
+    token_mean: required
+    sequence_sum: required
+  explicit_before_run:
+    - kl_coefficient
+    - ratio_clip
+    - max_completion_length
+    - lora_target_modules
+    - separator_backend
+
+pilot_stop_rules:
+  on_policy_pair_accuracy_min: 0.60
+  coverage_absolute_drop_max: 0.02
+  holistic_drop_1_5_max: 0.05
+  high_margin_wrong_rate_max: 0.05
+  invalid_rate_absolute_increase_max: 0.02
+  consecutive_checkpoints: 2
+
+compute_roles:
+  interactive_gpu: environment_bringup_and_smoke
+  batch_cluster: offline_matrix_and_repeated_seeds

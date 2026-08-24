@@ -1,0 +1,26 @@
+.DS_Store
+.idea/
+.vscode/
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Public datasets and model artifacts are referenced by manifests, not committed.
+data/
+datasets/
+models/
+checkpoints/
+outputs/
+artifacts/
+results/
+logs/
+decoded_audio/
+separated_audio/
+
+# Local environment receipts may contain machine paths.
+receipts/local/
+*.local.yaml
+*.local.json

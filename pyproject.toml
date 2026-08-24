@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vocal2accomp-muse"
+version = "0.1.0"
+description = "Public reward qualification and post-training experiments for long-form song generation"
+readme = "README.md"
+requires-python = ">=3.10,<3.12"
+license = {text = "MIT"}
+dependencies = [
+  "numpy>=1.26,<2",
+  "scipy>=1.10,<1.14",
+  "soundfile>=0.12,<0.14",
+  "librosa>=0.10,<0.11",
+  "mir_eval>=0.8,<0.9",
+]
+
+[project.optional-dependencies]
+analysis = [
+  "matplotlib>=3.8,<4",
+  "pandas>=2.1,<3",
+  "PyYAML>=6,<7",
+  "scikit-learn>=1.4,<2",
+]
+test = ["pytest>=8,<9"]
+
+[tool.setuptools.packages.find]
+include = ["mir*", "finetuning*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "experiments/open_reward_safety/tests"]
