@@ -40,12 +40,15 @@ def main() -> None:
     import torch
     import torchaudio
 
+    input_path = args.input.expanduser().resolve()
+    output = args.output_manifest.expanduser().resolve()
+    audio_dir = args.audio_dir.expanduser().resolve()
+    checkpoint = args.checkpoint.expanduser().resolve()
     root = args.mucodec_root.expanduser().resolve()
     sys.path.insert(0, str(root))
     os.chdir(root)
     from generate import MuCodec
 
-    checkpoint = args.checkpoint.expanduser().resolve()
     checkpoint_sha256 = _sha256(checkpoint)
     model = MuCodec(
         model_path=str(checkpoint),
@@ -55,12 +58,10 @@ def main() -> None:
     )
     rows = [
         json.loads(line)
-        for line in args.input.read_text(encoding="utf-8").splitlines()
+        for line in input_path.read_text(encoding="utf-8").splitlines()
         if line
     ]
-    audio_dir = args.audio_dir.expanduser().resolve()
     audio_dir.mkdir(parents=True, exist_ok=True)
-    output = args.output_manifest.expanduser().resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("w", encoding="utf-8") as handle:
         for row in rows:
