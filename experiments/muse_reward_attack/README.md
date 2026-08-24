@@ -159,6 +159,9 @@ vocal-side/co-adaptation exploit from an accompaniment-ranking failure.
 proxy gain that remains on those frozen-vocal cross-candidate pairs. Negative
 retention is mechanistic evidence of co-adaptation dependence, not a standalone
 human-quality judgment, because the cross-candidate audio is out of support.
+`plot_fixed_vocal_retention.py` visualizes that ratio with the co-generated gain
+normalized to one within each arm, so unlike raw score deltas it is comparable
+across differently scaled rewards.
 
 ### A1 GRPO pilot
 
