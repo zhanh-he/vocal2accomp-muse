@@ -207,6 +207,24 @@ and repeat the exact-stem gate on a larger source-clustered set. The frozen
 receipt and figures are under
 `receipts/e1_mir1k_pilot50_20260824/`.
 
+### Comparative selective-risk update: 2026-08-24
+
+We also compared score margins and the current V5 evidence confidence as
+selective-acceptance signals. On the 600 MIR-1K beat pairs, V2 margin had the
+lowest 25%-coverage risk (31.3%), while V5 evidence confidence remained weak
+(47.3%). An untuned `0.5 * v2 + 0.5 * v5` raw mean had the best full-coverage
+risk (44.7%) but was weaker than V2 margin at the proposed 25% gate.
+
+On a separate controlled SongEval construct with 94 signed direction groups,
+the same raw mean had 0% exact-order risk at 25% coverage and 2.1% at 50%,
+compared with 75.0% and 72.3% for MuseCritic-Musicality. This does not make the
+two datasets interchangeable: MIR-1K measures pair-direction risk, whereas the
+SongEval construct measures exact `clean > 70 ms > 120 ms` ordering. The
+composite remains exploratory pending source-held-out and human validation.
+
+Figures, summary data, definitions, and caveats are frozen under
+`receipts/selective_risk_comparison_20260824/`.
+
 ## MIR-1K executable path
 
 The first E1 pilot uses the original MIR-1K stereo contract: accompaniment on
