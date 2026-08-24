@@ -155,6 +155,10 @@ Because Muse co-generates both sides of the beat comparison,
 for each prompt and pairs it with every accompaniment candidate. This does not
 turn Muse into a conditional accompaniment model, but it separates a
 vocal-side/co-adaptation exploit from an accompaniment-ranking failure.
+`analyze_fixed_vocal_retention.py` reports the fraction of each co-generated
+proxy gain that remains on those frozen-vocal cross-candidate pairs. Negative
+retention is mechanistic evidence of co-adaptation dependence, not a standalone
+human-quality judgment, because the cross-candidate audio is out of support.
 
 ### A1 GRPO pilot
 
