@@ -53,6 +53,8 @@ def main() -> None:
         for key, (label, color, marker) in SERIES.items():
             if key not in arm_rows[0] or arm_rows[0][key] == "":
                 continue
+            if key == f"control_budget_{arm_rows[0]['score_key']}":
+                continue
             axis.plot(
                 x,
                 [float(row[key]) for row in arm_rows],
@@ -89,8 +91,15 @@ def main() -> None:
     for axis in axes[:, 0]:
         axis.set_ylabel("Proxy SD / guardrail budget units")
     handles, labels = axes.flat[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="upper center", ncol=len(labels), frameon=False)
-    fig.suptitle(args.title, fontsize=13, y=0.995)
+    fig.suptitle(args.title, fontsize=13, y=0.997)
+    fig.legend(
+        handles,
+        labels,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.978),
+        ncol=len(labels),
+        frameon=False,
+    )
     fig.text(
         0.5,
         0.01,
@@ -99,7 +108,7 @@ def main() -> None:
         fontsize=8,
         color="#4b5563",
     )
-    fig.tight_layout(rect=(0, 0.04, 1, 0.95))
+    fig.tight_layout(rect=(0, 0.04, 1, 0.94))
     output = args.output.expanduser().resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output, dpi=180, bbox_inches="tight", facecolor="white")
