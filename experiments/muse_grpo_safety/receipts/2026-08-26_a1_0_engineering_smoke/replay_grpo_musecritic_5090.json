@@ -1,0 +1,82 @@
+{
+  "schema": "vocal2accomp_muse.replay_grpo_lora_step",
+  "status": "PASS",
+  "scope": "offline replay engineering smoke; not an online GRPO trajectory",
+  "model": "/home/mengh/research/vocal2accomp-muse/models/Muse-0.6b",
+  "input": "/home/mengh/research/vocal2accomp-muse-online/results/muse_reward_attack_bok_20260824/attack/scores_complete.jsonl",
+  "prompt_id": "muse_test_009",
+  "reward_key": "musecritic_mean5",
+  "candidate_ids": [
+    "muse_test_009__004",
+    "muse_test_009__008"
+  ],
+  "rewards": [
+    2.168750047683716,
+    3.8187499046325684
+  ],
+  "advantages": [
+    -1.0000001192092896,
+    0.9999998807907104
+  ],
+  "selection": "minimum and maximum finite reward within one cached same-prompt group",
+  "trajectory": [
+    {
+      "original_length": 2037,
+      "used_length": 512,
+      "original_action_tokens": 1004,
+      "used_action_tokens": 251
+    },
+    {
+      "original_length": 1944,
+      "used_length": 512,
+      "original_action_tokens": 911,
+      "used_action_tokens": 251
+    }
+  ],
+  "optimizer": {
+    "type": "AdamW",
+    "learning_rate": 1e-05,
+    "clip_epsilon": 0.2,
+    "max_grad_norm": 1.0,
+    "gradient_norm_before_clip": 0.31606096029281616,
+    "loss": 1.1920928955078125e-07,
+    "per_candidate_loss": [
+      0.5000000596046448,
+      -0.4999999403953552
+    ],
+    "initial_ratio_mean": [
+      1.0,
+      1.0
+    ]
+  },
+  "lora": {
+    "rank": 16,
+    "alpha": 32,
+    "trainable_parameters": 10092544,
+    "total_parameters": 622648320,
+    "trainable_fraction": 0.01620906003568756,
+    "changed_tensors": 392,
+    "parameter_delta_l2": 0.02343509984248302
+  },
+  "sampled_log_probability": [
+    {
+      "before_mean": -3.7768919467926025,
+      "after_mean": -3.7775895595550537,
+      "after_minus_before_mean": -0.0006974719581194222
+    },
+    {
+      "before_mean": -3.7939035892486572,
+      "after_mean": -3.7946856021881104,
+      "after_minus_before_mean": -0.0007821476319804788
+    }
+  ],
+  "runtime": {
+    "python": "3.11.15",
+    "torch": "2.8.0+cu128",
+    "gpu": "NVIDIA GeForce RTX 5090",
+    "gpu_memory_gib": 31.34844970703125,
+    "peak_allocated_gib": 3.550952434539795,
+    "elapsed_seconds": 1.6721173099940643,
+    "seed": 20260826
+  }
+}

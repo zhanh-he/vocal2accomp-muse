@@ -1,0 +1,82 @@
+{
+  "schema": "vocal2accomp_muse.replay_grpo_lora_step",
+  "status": "PASS",
+  "scope": "offline replay engineering smoke; not an online GRPO trajectory",
+  "model": "/home/mengh/research/vocal2accomp-muse/models/Muse-0.6b",
+  "input": "/home/mengh/research/vocal2accomp-muse-online/results/muse_reward_attack_bok_20260824/attack/scores_complete.jsonl",
+  "prompt_id": "muse_test_009",
+  "reward_key": "beat_v5_madmom",
+  "candidate_ids": [
+    "muse_test_009__015",
+    "muse_test_009__006"
+  ],
+  "rewards": [
+    0.3507343530654907,
+    0.4969162940979004
+  ],
+  "advantages": [
+    -1.0,
+    1.0
+  ],
+  "selection": "minimum and maximum finite reward within one cached same-prompt group",
+  "trajectory": [
+    {
+      "original_length": 1989,
+      "used_length": 512,
+      "original_action_tokens": 956,
+      "used_action_tokens": 251
+    },
+    {
+      "original_length": 1986,
+      "used_length": 512,
+      "original_action_tokens": 953,
+      "used_action_tokens": 251
+    }
+  ],
+  "optimizer": {
+    "type": "AdamW",
+    "learning_rate": 1e-05,
+    "clip_epsilon": 0.2,
+    "max_grad_norm": 1.0,
+    "gradient_norm_before_clip": 0.31117260456085205,
+    "loss": 0.0,
+    "per_candidate_loss": [
+      0.5,
+      -0.5
+    ],
+    "initial_ratio_mean": [
+      1.0,
+      1.0
+    ]
+  },
+  "lora": {
+    "rank": 16,
+    "alpha": 32,
+    "trainable_parameters": 10092544,
+    "total_parameters": 622648320,
+    "trainable_fraction": 0.01620906003568756,
+    "changed_tensors": 392,
+    "parameter_delta_l2": 0.023432462005689745
+  },
+  "sampled_log_probability": [
+    {
+      "before_mean": -3.8119659423828125,
+      "after_mean": -3.8132426738739014,
+      "after_minus_before_mean": -0.0012765747960656881
+    },
+    {
+      "before_mean": -3.6388018131256104,
+      "after_mean": -3.6349539756774902,
+      "after_minus_before_mean": 0.0038476779591292143
+    }
+  ],
+  "runtime": {
+    "python": "3.11.15",
+    "torch": "2.8.0+cu128",
+    "gpu": "NVIDIA GeForce RTX 5090",
+    "gpu_memory_gib": 31.34844970703125,
+    "peak_allocated_gib": 3.550952434539795,
+    "elapsed_seconds": 1.7339174289954826,
+    "seed": 20260826
+  }
+}

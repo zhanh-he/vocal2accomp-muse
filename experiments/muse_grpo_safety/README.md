@@ -61,9 +61,12 @@ independent learned gold signal.
 ## Staged Compute Gate
 
 `A1.0` is an engineering smoke: 4 prompts, group size 2, one LoRA optimizer
-step, running the Beat v5 and MuseCritic service paths. The proposed placement
-is one Gadi node with 4 H200 GPUs for two hours: rollout on GPU 0,
-MuCodec/reward services on GPU 1, and the LoRA trainer on GPUs 2-3.
+step, running the Beat v5 and MuseCritic service paths. Component services and
+an explicitly labelled offline replay step run serially on the RTX 5090 first.
+The first online placement requests one Gadi H200 for 30-60 minutes: the 141 GB
+device hosts the small Muse policy, MuCodec, MuseCritic, and LoRA trainer. A
+four-H200 request is an escalation only if the measured one-card memory receipt
+fails; it is not the default because it has a substantially worse queue shape.
 
 `A1.1` is the first scientific micro-attack: 8 train and 8 held-out prompts,
 group size 4, 6-10 optimizer steps, checkpoints every two steps, and one seed
@@ -72,3 +75,18 @@ and memory receipt.
 
 `A1.2` is a separately approved paper pilot with more prompts, 20+ steps, a
 shortlisted arm matrix, multiple seeds, and blind human checkpoint evaluation.
+
+## A1.0 Tools
+
+- `scripts/qualify_stack.py` records trainer imports, staged model files, and
+  service CLI checks. MuseCritic and MuCodec may use different Python
+  interpreters; the latter remains on Python 3.10 for fairseq 0.12.2.
+- `scripts/smoke_reward_service.py` starts one official HTTP service, waits for
+  a loaded health response, performs one real request, writes a JSON receipt,
+  and shuts the process down.
+- `scripts/replay_grpo_lora_step.py` verifies a rank-16 LoRA update from a
+  cached same-prompt group. It masks only Muse audio-vocabulary tokens and is
+  explicitly an offline replay smoke, not evidence of online reward validity.
+
+Frozen receipts for the first execution are under
+`receipts/2026-08-26_a1_0_engineering_smoke/`.

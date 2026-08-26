@@ -1,0 +1,83 @@
+{
+  "schema": "vocal2accomp_muse.grpo_stack_qualification",
+  "ok": true,
+  "python": "3.11.13 (main, Apr 28 2026, 13:06:52) [GCC 8.5.0 20210514 (Red Hat 8.5.0-28)]",
+  "imports": {
+    "torch": {
+      "ok": true,
+      "version": "2.8.0"
+    },
+    "torchaudio": {
+      "ok": true,
+      "version": "2.8.0"
+    },
+    "transformers": {
+      "ok": true,
+      "version": "4.57.1"
+    },
+    "swift": {
+      "ok": true,
+      "version": "4.3.2"
+    },
+    "fastapi": {
+      "ok": true,
+      "version": "0.141.1"
+    },
+    "uvicorn": {
+      "ok": true,
+      "version": "0.52.4"
+    },
+    "soundfile": {
+      "ok": true,
+      "version": "0.14.0"
+    }
+  },
+  "files": {
+    "muse": {
+      "path": "/g/data/wa66/hanyu/vocal2accomp-muse/models/Muse-0.6b/model.safetensors",
+      "exists": true,
+      "size_bytes": 1225146832
+    },
+    "musecritic_index": {
+      "path": "/g/data/wa66/hanyu/vocal2accomp-muse/models/MuseCritic/model.safetensors.index.json",
+      "exists": true,
+      "size_bytes": 180898
+    },
+    "musecritic_shard_1": {
+      "path": "/g/data/wa66/hanyu/vocal2accomp-muse/models/MuseCritic/model-00001-of-00004.safetensors",
+      "exists": true,
+      "size_bytes": 4938953040
+    },
+    "mucodec": {
+      "path": "/g/data/wa66/hanyu/vocal2accomp-muse/src/MuCodec/weights/mucodec.pt",
+      "exists": true,
+      "size_bytes": 4291866472
+    },
+    "muq": {
+      "path": "/g/data/wa66/hanyu/vocal2accomp-muse/src/MuCodec/muq_dev/muq.pt",
+      "exists": true,
+      "size_bytes": 1319797418
+    },
+    "audioldm": {
+      "path": "/g/data/wa66/hanyu/vocal2accomp-muse/src/MuCodec/tools/audioldm_48k.pth",
+      "exists": true,
+      "size_bytes": 5359712103
+    }
+  },
+  "service_cli": {
+    "musecritic": {
+      "path": "/g/data/wa66/hanyu/vocal2accomp-muse/src/MuseCritic/muse_grpo/deploy/musecritic/musecritic_serve.py",
+      "python": "/scratch/wa66/hm6416/envs/muse-grpo-cu128/bin/python",
+      "ok": true,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    "mucodec": {
+      "path": "/g/data/wa66/hanyu/vocal2accomp-muse/src/MuCodec/deploy/mucodec_serve.py",
+      "python": "/g/data/wa66/hanyu/vocal2accomp-muse/envs/mucodec-py310-cu128/bin/python",
+      "ok": true,
+      "returncode": 0,
+      "stderr_tail": "/g/data/wa66/hanyu/vocal2accomp-muse/envs/mucodec-py310-cu128/lib/python3.10/site-packages/torch/cuda/__init__.py:829: UserWarning: Can't initialize NVML\n  warnings.warn(\"Can't initialize NVML\")\n2026-08-26 17:10:34 | INFO | fairseq.tasks.text_to_speech | Please install tensorboardX: pip install tensorboardX\n/g/data/wa66/hanyu/vocal2accomp-muse/envs/mucodec-py310-cu128/lib/python3.10/site-packages/torch/amp/autocast_mode.py:266: UserWarning: User provided device_type of 'cuda', but CUDA is not available. Disabling\n  warnings.warn(\n"
+    }
+  }
+}

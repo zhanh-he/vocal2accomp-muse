@@ -12,11 +12,12 @@ it does not prove that Muse, MuCodec, source separation, or a reward service fit
 | lab5090 | one RTX 5090, 32 GB | environment setup, E1/E2 scoring, Muse generation and single-GPU LoRA feasibility |
 | Kaya | two V100 per node | large offline scoring; 2-GPU same-node fallback; 4-GPU only after a 2-node NCCL test |
 | Gadi gpuvolta | four V100-32GB per node | same-node 4-GPU compatibility and budget-efficient pilot |
-| Gadi gpuhopper | four H200-141GB per node | preferred 4-GPU Muse GRPO once the stack and queue are qualified |
+| Gadi gpuhopper | four H200-141GB per node | preferred one-H200 online smoke; scale only from measured need |
 
 The 4-GPU Kaya launcher deliberately requests two nodes. Do not interpret it as
-a same-node test. Gadi is the cleaner four-card training target because both GPU
-queues expose four devices within one node.
+a same-node test. Gadi is the cleaner multi-card training target because both
+GPU queues expose four devices within one node, but a four-card allocation is
+not required for the first online smoke.
 
 ## Smoke program
 

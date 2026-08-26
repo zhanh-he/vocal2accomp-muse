@@ -1,0 +1,27 @@
+{
+  "schema": "vocal2accomp_muse.reward_service_smoke",
+  "service": "mucodec",
+  "status": "PASS",
+  "python": "/home/mengh/miniconda3/envs/mucodec-cu128/bin/python3.10",
+  "script": "/home/mengh/research/vocal2accomp-muse-online/src/MuCodec/deploy/mucodec_serve.py",
+  "model": "/home/mengh/research/vocal2accomp-muse-online/src/MuCodec/weights/mucodec.pt",
+  "port": 8003,
+  "result": {
+    "sample_rate": 48000,
+    "duration": 4.0,
+    "channels": 2,
+    "token_count": 502,
+    "inference_time": 7.662824630737305,
+    "audio_base64_chars": 1024104
+  },
+  "health": {
+    "status": "healthy",
+    "model_loaded": true,
+    "model_path": "/home/mengh/research/vocal2accomp-muse-online/src/MuCodec/weights/mucodec.pt",
+    "device": "cuda:0"
+  },
+  "startup_seconds": 16.024236315046437,
+  "request_seconds": 7.6812724019400775,
+  "service_returncode": -15,
+  "elapsed_seconds": 24.21999163797591
+}

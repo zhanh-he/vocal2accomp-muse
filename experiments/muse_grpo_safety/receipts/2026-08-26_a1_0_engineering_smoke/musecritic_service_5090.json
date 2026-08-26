@@ -1,0 +1,30 @@
+{
+  "schema": "vocal2accomp_muse.reward_service_smoke",
+  "service": "musecritic",
+  "status": "PASS",
+  "python": "/home/mengh/miniconda3/envs/musecritic/bin/python3.12",
+  "script": "/home/mengh/research/vocal2accomp-muse/src/MuseCritic/muse_grpo/deploy/musecritic/musecritic_serve.py",
+  "model": "/home/mengh/research/musecritic_beat_eval/models/MuseCritic",
+  "port": 8002,
+  "result": {
+    "reward_scores": {
+      "Coherence": 1.921875,
+      "Musicality": 1.546875,
+      "Memorability": 2.15625,
+      "Clarity": 2.21875,
+      "Naturalness": 2.71875
+    },
+    "critique_chars": 52,
+    "audio": "/home/mengh/research/vocal2accomp-muse-online/results/muse_reward_attack_smoke_20260824/audio/muse_test_000__000.wav"
+  },
+  "health": {
+    "status": "healthy",
+    "model_loaded": true,
+    "model_path": "/home/mengh/research/musecritic_beat_eval/models/MuseCritic",
+    "device": "cuda:0"
+  },
+  "startup_seconds": 6.017780050984584,
+  "request_seconds": 1.4731941859936342,
+  "service_returncode": -15,
+  "elapsed_seconds": 7.855676684062928
+}
