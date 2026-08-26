@@ -82,3 +82,52 @@ def largest_connected_radius(
             first_failure = index - consecutive + 1
             return float(distance[max(0, first_failure - 1)])
     return float(distance[-1])
+
+
+def within_prompt_scale(
+    rows: Sequence[Mapping[str, object]],
+    score_key: str,
+) -> float:
+    """Estimate candidate variation after removing prompt-level offsets."""
+    grouped: dict[str, list[float]] = defaultdict(list)
+    for row in rows:
+        try:
+            value = float(row["scores"][score_key])
+        except KeyError as exc:
+            raise KeyError(f"missing score {score_key!r}") from exc
+        if not np.isfinite(value):
+            raise ValueError(f"score {score_key!r} must be finite")
+        grouped[str(row["prompt_id"])].append(value)
+    residuals = []
+    for values in grouped.values():
+        center = float(np.mean(values))
+        residuals.extend(value - center for value in values)
+    if len(residuals) < 2:
+        raise ValueError("at least two candidate scores are required")
+    return max(float(np.std(residuals, ddof=1)), 1e-8)
+
+
+def top1_stability_under_noise(
+    values: Sequence[float],
+    *,
+    noise_std: float,
+    draws: int,
+    rng: np.random.Generator,
+) -> float:
+    """Return how often additive score noise preserves the original winner."""
+    scores = np.asarray(values, dtype=float).reshape(-1)
+    if len(scores) < 2 or np.any(~np.isfinite(scores)):
+        raise ValueError("values must contain at least two finite scores")
+    if noise_std < 0 or not np.isfinite(noise_std):
+        raise ValueError("noise_std must be finite and non-negative")
+    if draws < 1:
+        raise ValueError("draws must be positive")
+    winner = int(np.argmax(scores))
+    if noise_std == 0:
+        return 1.0
+    perturbed = scores[None, :] + rng.normal(
+        loc=0.0,
+        scale=noise_std,
+        size=(draws, len(scores)),
+    )
+    return float(np.mean(np.argmax(perturbed, axis=1) == winner))

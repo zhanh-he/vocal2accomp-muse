@@ -1,0 +1,57 @@
+{
+  "schema": "vocal2accomp_muse.reward_regime_screen",
+  "version": 2,
+  "selection_k": 16,
+  "seed": 20260826,
+  "noise_draws": 2000,
+  "noise_fractions_of_calibration_sd": [0.1, 0.25, 0.5],
+  "min_group_range": 0.005,
+  "metrics": {
+    "beat_v2": {"label": "Beat v2", "direction": "higher", "budget": 0.02},
+    "beat_v5_madmom": {"label": "Beat v5", "direction": "higher", "budget": 0.02},
+    "coverage": {"label": "Coverage", "direction": "higher", "budget": 0.02},
+    "musecritic_mean5": {"label": "MuseCritic", "direction": "higher", "budget": 0.05}
+  },
+  "arms": {
+    "beat_v2": {
+      "label": "Beat v2",
+      "score_key": "beat_v2",
+      "optimized_constructs": ["beat_v2"]
+    },
+    "beat_v5": {
+      "label": "Beat v5",
+      "score_key": "beat_v5_madmom",
+      "optimized_constructs": ["beat_v5_madmom"]
+    },
+    "beat_v5_ensemble": {
+      "label": "V5 ensemble",
+      "score_key": "beat_v5_detector_ensemble",
+      "optimized_constructs": ["beat_v5_madmom"]
+    },
+    "musecritic": {
+      "label": "MuseCritic",
+      "score_key": "musecritic_mean5",
+      "optimized_constructs": ["musecritic_mean5"]
+    },
+    "coverage": {
+      "label": "Coverage only",
+      "score_key": "coverage",
+      "optimized_constructs": ["coverage"]
+    },
+    "v2_coverage_raw": {
+      "label": "V2 + coverage",
+      "score_key": "beat_v2_coverage_raw",
+      "optimized_constructs": ["beat_v2", "coverage"]
+    },
+    "v2_coverage_floor": {
+      "label": "V2 | coverage floor",
+      "score_key": "beat_v2_coverage_floor_q25",
+      "optimized_constructs": ["beat_v2", "coverage"]
+    },
+    "v5_confidence": {
+      "label": "V5 x confidence",
+      "score_key": "beat_v5_detector_ensemble_confidence_product",
+      "optimized_constructs": ["beat_v5_madmom"]
+    }
+  }
+}
